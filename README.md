@@ -1,15 +1,12 @@
-# ⌨️ README SVG Typing Generator
-
 <div align="center">
+
+[![SVG Animation](https://readme-svg-typing-generator.vercel.app/api?lines=README%20SVG%20Typing%20Generator&animation=rainbow&color=36BCF7&background=00000000&size=26&font=monospace&duration=5000&pause=1000&width=435&height=50&letterSpacing=normal&center=true&vCenter=false&multiline=false&repeat=true&random=false)](https://github.com/OstinUA)
 
 [![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-readme--svg--typing--generator.vercel.app-6c74ff?style=for-the-badge)](https://readme-svg-typing-generator.vercel.app/)
 [![Deploy with Vercel](https://img.shields.io/badge/Deploy-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/new/clone?repository-url=https://github.com/OstinUA/readme-SVG-typing-generator)
 [![License: MIT](https://img.shields.io/badge/License-MIT-00e5a0?style=for-the-badge)](LICENSE)
 [![Node.js](https://img.shields.io/badge/Node.js-Serverless-339933?style=for-the-badge&logo=nodedotjs)](https://vercel.com/docs/functions)
 
-<br/>
-
-[![Preview](https://readme-svg-typing-generator.vercel.app/api?lines=Welcome+to+my+GitHub+profile!;I+build+open+source+tools;Check+out+this+project+%E2%9C%A8&animation=typing&color=36BCF7&width=620&height=58&size=24&duration=4000&pause=800&center=true&vCenter=true)](https://readme-svg-typing-generator.vercel.app/)
 
 <br/>
 
