@@ -306,7 +306,7 @@ Open `http://localhost:3000` to see the demo site with live reloading.
 
 ## 📄 License
 
-[MIT](LICENSE) © [OstinUA](https://github.com/OstinUA)
+[GPL-3.0-1](https://github.com/OstinUA/readme-SVG-typing-generator?tab=GPL-3.0-1-ov-file) © [OstinUA](https://github.com/OstinUA)
 
 ---
 
