@@ -4,9 +4,8 @@
 
 [![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-readme--svg--typing--generator.vercel.app-6c74ff?style=for-the-badge)](https://readme-svg-typing-generator.vercel.app/)
 [![Deploy with Vercel](https://img.shields.io/badge/Deploy-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/new/clone?repository-url=https://github.com/OstinUA/readme-SVG-typing-generator)
-[![License: MIT](https://img.shields.io/badge/License-MIT-00e5a0?style=for-the-badge)](LICENSE)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-00e5a0?style=for-the-badge)](LICENSE)
 [![Node.js](https://img.shields.io/badge/Node.js-Serverless-339933?style=for-the-badge&logo=nodedotjs)](https://vercel.com/docs/functions)
-
 
 <br/>
 
