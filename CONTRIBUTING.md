@@ -1,6 +1,6 @@
 # Contributing to README SVG Typing Generator
 
-Thank you for taking the time to contribute! This document covers everything you need to get started — from setting up a local environment to submitting a pull request.
+Thank you for considering a contribution! This document walks you through everything — from setting up a local environment to submitting a pull request.
 
 ---
 
@@ -24,7 +24,7 @@ Thank you for taking the time to contribute! This document covers everything you
 
 ## Code of Conduct
 
-Be respectful, constructive, and inclusive. Harassment or dismissive behavior of any kind will not be tolerated. If you see a problem, open an issue or reach out directly.
+By participating in this project you agree to abide by our [Code of Conduct](CODE_OF_CONDUCT.md). Please read it before contributing.
 
 ---
 
@@ -49,8 +49,10 @@ npm install -g vercel
 vercel dev
 ```
 
-The demo site will be available at `http://localhost:3000`
-The API endpoint will be available at `http://localhost:3000/api`
+| Address | What's there |
+|---|---|
+| `http://localhost:3000` | Demo site |
+| `http://localhost:3000/api` | API endpoint |
 
 > **Note:** You do not need to log in to Vercel to run `vercel dev` locally. If prompted, you can skip linking to a project.
 
@@ -61,24 +63,32 @@ The API endpoint will be available at `http://localhost:3000/api`
 ```
 readme-SVG-typing-generator/
 │
-├── index.html              # Frontend demo site (vanilla HTML/CSS/JS)
+├── index.html              # Frontend demo site (vanilla HTML/CSS/JS, no build step)
 ├── vercel.json             # Routing and build configuration
 │
 └── api/
-    ├── index.js            # Entry point — parses query params, calls animations.js
-    └── animations.js       # Core animation engine — all 16 animation types live here
+    ├── index.js            # Entry point — parses query params, calls animation engine
+    └── animations/
+        ├── index.js        # Animation registry
+        ├── _utils.js       # Shared helpers (lineY, sequenceOpacity, clamp01)
+        ├── typing.js       # One file per animation
+        ├── fade.js
+        └── ...
 ```
 
 ### Key files explained
 
 **`api/index.js`**
-Receives the HTTP request, validates and sanitizes all query parameters with safe defaults and min/max limits, then calls `getAnimation()` from `animations.js` and wraps the result in a complete SVG document. This file should remain lean — logic belongs in `animations.js`.
+Receives the HTTP request, validates and sanitizes all query parameters with safe defaults and min/max limits, then calls `getAnimation()` and wraps the result in a complete SVG document. Keep this file lean — logic belongs in the animation modules.
 
-**`api/animations.js`**
-Exports a single function `getAnimation(type, options)` that returns an SVG fragment (everything inside the `<svg>` tag). Each animation is a `case` in a `switch` statement. The function receives a normalized `options` object — see [Animation API Contract](#animation-api-contract) for the full shape.
+**`api/animations/index.js`**
+The animation registry. Exports a map of `animationName → module`. Each module receives a normalized `options` object and returns an SVG string fragment.
+
+**`api/animations/_utils.js`**
+Shared helpers used across animation modules: `clamp01`, `getLineY`, `buildSequenceOpacity`.
 
 **`index.html`**
-A self-contained single-file frontend. No build step, no bundler, no frameworks. Vanilla HTML, CSS, and JavaScript only. The page uses `fetch` against the local (or production) `/api` endpoint to render the live preview.
+A self-contained single-file frontend. No build step, no bundler, no frameworks. Vanilla HTML, CSS, and JavaScript only.
 
 ---
 
@@ -88,16 +98,15 @@ A self-contained single-file frontend. No build step, no bundler, no frameworks.
 # Start the dev server
 vercel dev
 
-# Make your changes to api/animations.js or index.html
+# Make your changes
 
-# Test by visiting:
-# http://localhost:3000                        → demo site
-# http://localhost:3000/api?lines=Test&animation=YOUR_ANIM  → raw SVG
+# Test against the raw API:
+# http://localhost:3000/api?lines=Test&animation=YOUR_ANIM
 
-# When you're happy, commit and open a PR
+# When happy, commit and open a PR
 ```
 
-There is no build step or compilation needed. The serverless functions are plain Node.js CommonJS modules.
+There is no compilation or build step. The serverless functions are plain Node.js CommonJS modules.
 
 ---
 
@@ -107,14 +116,14 @@ There is no build step or compilation needed. The serverless functions are plain
 
 Before opening an issue, please:
 
-1. Check that the bug isn't already reported in [Issues](https://github.com/OstinUA/readme-SVG-typing-generator/issues)
-2. Test against the live demo at [readme-svg-typing-generator.vercel.app](https://readme-svg-typing-generator.vercel.app/) to confirm it's not a local setup issue
+1. Check that the bug isn't already reported in [Issues](https://github.com/OstinUA/readme-SVG-typing-generator/issues).
+2. Test against the [live demo](https://readme-svg-typing-generator.vercel.app/) to confirm it's not a local setup issue.
 
 When filing a bug, include:
 
-- A **minimal URL** that reproduces the problem, e.g. `/api?lines=Test&animation=glitch`
+- A **minimal URL** that reproduces the problem (e.g. `/api?lines=Test&animation=glitch`)
 - What you **expected** to see
-- What you **actually** saw (screenshot or description)
+- What you **actually** saw — screenshot or description
 - Browser and OS (for demo site UI bugs)
 
 ---
@@ -125,106 +134,105 @@ Open an issue with the label `enhancement` and describe:
 
 - What you want the feature to do
 - Why it would be useful to other users
-- A rough idea of how it might work (optional, but helpful)
+- A rough idea of how it might work (optional but helpful)
 
-Good candidates for new features include new animation types, new font options, new query parameters, or improvements to the demo site UI.
+Good candidates: new animation types, new font options, new query parameters, demo site UI improvements.
 
 ---
 
 ### Adding a New Animation
 
-This is the most impactful type of contribution. Here's the full process:
+This is the most impactful type of contribution. Here is the full process:
 
 #### Step 1 — Plan your animation
 
 Think about:
 - What should the text do visually?
-- Does it work well with multiple lines (`multiline=true`)?
+- Does it work well with `multiline=true`?
 - Does it respect `center`, `vCenter`, `repeat`, and `letterSpacing`?
 - Does it look good at different font sizes and SVG dimensions?
 
 Stick to pure SVG animations (`<animate>`, `<animateTransform>`, CSS `@keyframes` inside `<style>`). No JavaScript inside the SVG.
 
-#### Step 2 — Add the animation to `api/animations.js`
+#### Step 2 — Create the animation module
 
-Open `api/animations.js` and add a new `case` to the `switch` statement:
+Create a new file `api/animations/myanimation.js`:
 
 ```js
-case 'myanimation': {
-    const durS = intDuration / 1000;
+module.exports = (ctx) => {
+    const {
+        lines, textX, textAnchor, commonStyle,
+        repeat, lineDurS, slotS, sequenceOpacity, lineY,
+    } = ctx;
 
-    const items = lines.map((line, i) => {
-        const lineH = intSize * 1.6;
-        const y = multiline
-            ? (vCenter
-                ? (intHeight - lines.length * lineH) / 2 + intSize + i * lineH
-                : 30 + i * lineH)
-            : yBase;
-
-        return `<text
-            x="${textX}"
-            y="${y}"
-            text-anchor="${textAnchor}"
-            style="${commonStyle}">
-            <!-- your SVG animation here -->
-            ${line}
-        </text>`;
-    }).join('');
-
-    return `${bgRect}${items}`;
-}
+    return lines.map((line, i) => `<text
+        x="${textX}"
+        y="${lineY(i)}"
+        text-anchor="${textAnchor}"
+        style="${commonStyle}"
+        opacity="0">
+        ${sequenceOpacity(i)}
+        <!-- your SVG animation here -->
+        ${line}
+    </text>`).join('');
+};
 ```
 
-Key variables already available in scope:
+Key variables available in the `ctx` object:
 
-| Variable | Value |
-|----------|-------|
+| Variable | Description |
+|----------|-------------|
 | `lines` | `string[]` — array of text lines |
 | `textColor` | `string` — `#RRGGBB` |
 | `textX` | `string` — `"50%"` or `"20"` depending on `center` |
 | `textAnchor` | `string` — `"middle"` or `"start"` |
-| `yBase` | `number` — default Y position for single-line animations |
 | `intSize` | `number` — font size in px |
 | `intWidth` / `intHeight` | `number` — SVG dimensions |
-| `intDuration` / `intPause` | `number` — timing in ms |
-| `fontFamily` | `string` — resolved font stack |
-| `commonStyle` | `string` — inline style string with font, size, fill |
-| `bgRect` | `string` — optional background `<rect>` element |
+| `lineDurS` / `pauseS` | `number` — timing in seconds |
+| `slotS` / `cycleDurS` | `number` — slot and full cycle duration |
+| `commonStyle` | `string` — inline style with font, size, fill |
 | `repeat` | `boolean` |
 | `multiline` | `boolean` |
 | `vCenter` | `boolean` |
+| `center` | `boolean` |
+| `lineY(index)` | `function` — returns Y coordinate for a line |
+| `sequenceOpacity(index)` | `function` — returns the opacity `<animate>` element |
+| `clamp01(value)` | `function` — clamps value to [0, 1] |
 
-#### Step 3 — Register the animation in `api/index.js`
+#### Step 3 — Register in `api/animations/index.js`
+
+```js
+module.exports = {
+    // ... existing entries ...
+    myanimation: require('./myanimation'),
+};
+```
+
+#### Step 4 — Register in `api/index.js`
 
 Add your animation name to the `validAnimations` array:
 
 ```js
 const validAnimations = [
-    'typing', 'fade', 'slide', 'bounce', 'pulse', 'blink',
-    'shake', 'rainbow', 'glitch', 'stroke', 'wave', 'flip',
-    'neon', 'matrix', 'zoom', 'blur',
+    'typing', 'fade', 'slide', /* ... */,
     'myanimation',  // ← add here
 ];
 ```
 
-#### Step 4 — Add it to the demo site in `index.html`
+#### Step 5 — Add it to the demo site in `index.html`
 
-Find the `ANIMATIONS` array in the `<script>` section and add an entry:
+Find the `ANIMATIONS` array in the `<script>` section:
 
 ```js
 const ANIMATIONS = [
     // ... existing entries ...
-    { id: 'myanimation', icon: '🎯', label: 'My Animation' },
+    { id: 'myanimation', label: 'My Animation', description: 'Short description of the visual effect.' },
 ];
 ```
 
-Pick an emoji that represents the visual feel of your animation.
+#### Step 6 — Test it thoroughly
 
-#### Step 5 — Test it thoroughly
-
-Test your animation against these scenarios before submitting:
-
-```
+```bash
 # Single line
 /api?lines=Hello+World!&animation=myanimation
 
@@ -251,25 +259,25 @@ Test your animation against these scenarios before submitting:
 
 ### Improving the Demo Site
 
-`index.html` is a self-contained file with no build step. Just edit it and refresh `http://localhost:3000`.
+`index.html` is a self-contained file with no build step. Edit it and refresh `http://localhost:3000`.
 
-Guidelines for demo site changes:
+Guidelines:
 
-- Keep it a single file with no external dependencies (exception: Google Fonts via `<link>`)
+- Keep it a **single file** with no external dependencies (exception: Google Fonts via `<link>`)
 - Do not introduce a bundler, framework, or npm dependencies
 - Maintain the existing dark color scheme and design language
-- Any new controls should update the preview and regenerate the URL in real time
+- New controls should update the preview and regenerate the URL in real time
 
 ---
 
 ### Documentation
 
-Improvements to `README.md` or `CONTRIBUTING.md` are always welcome. This includes:
+Improvements to `README.md` or `CONTRIBUTING.md` are always welcome:
 
 - Fixing typos or unclear wording
 - Adding new usage examples
 - Improving parameter descriptions
-- Adding documentation for new features
+- Documenting new features
 
 ---
 
@@ -290,7 +298,7 @@ Improvements to `README.md` or `CONTRIBUTING.md` are always welcome. This includ
 
 4. **Keep diffs clean.** Avoid reformatting unrelated code, changing indentation, or removing whitespace in lines you didn't touch.
 
-5. **PRs should pass the manual test checklist** (see [Step 5](#step-5--test-it-thoroughly) above for animations).
+5. **PRs should pass the manual test checklist** (see Step 6 above for animations).
 
 ---
 
@@ -302,38 +310,48 @@ There is no linter configured, but please follow the existing conventions:
 - **Quotes:** single quotes in JavaScript
 - **Semicolons:** yes
 - **Variable declarations:** `const` by default, `let` only when reassignment is needed
-- **Comments:** use them sparingly for non-obvious logic; don't comment obvious things
-- **SVG strings:** template literals with consistent 4-space indentation inside the string
+- **Comments:** sparingly, for non-obvious logic only
+- **SVG strings:** template literals with consistent 4-space indentation
 - **No external npm packages** — the `api/` folder has zero dependencies by design
 
 ---
 
 ## Animation API Contract
 
-`getAnimation(type, options)` in `animations.js` receives the following normalized object:
+Each animation module exports a single function:
+
+```js
+module.exports = (ctx) => { /* ... */ return svgFragment; };
+```
+
+The `ctx` object shape:
 
 ```js
 {
-    lines:         string[],   // array of decoded text lines (never empty)
-    color:         string,     // hex without #, e.g. "36BCF7"
-    size:          number,     // font size in px (integer, 8–120)
-    duration:      number,     // ms per line (integer, 200–30000)
-    pause:         number,     // ms pause between lines (integer, 0–10000)
-    width:         number,     // SVG width in px (integer, 50–1200)
-    height:        number,     // SVG height in px (integer, 20–400)
-    font:          string,     // "monospace" | "code" | "sans" | "serif"
-    background:    string,     // hex (8 chars with alpha), e.g. "00000000"
-    center:        boolean,    // horizontal centering
-    vCenter:       boolean,    // vertical centering
-    multiline:     boolean,    // show all lines simultaneously
-    letterSpacing: string,     // CSS letter-spacing value
-    repeat:        boolean,    // loop animation
-    random:        boolean,    // randomize line order
+    lines:           string[],   // array of decoded text lines (never empty)
+    textColor:       string,     // e.g. "#36BCF7"
+    commonStyle:     string,     // inline CSS string
+    textX:           string,     // "50%" or "20"
+    textAnchor:      string,     // "middle" or "start"
+    intSize:         number,     // font size in px
+    intWidth:        number,     // SVG width in px
+    intHeight:       number,     // SVG height in px
+    lineDurS:        number,     // seconds per line
+    pauseS:          number,     // seconds pause between lines
+    slotS:           number,     // lineDurS + pauseS
+    cycleDurS:       number,     // total cycle duration in seconds
+    center:          boolean,
+    vCenter:         boolean,
+    multiline:       boolean,
+    repeat:          boolean,
+    lineY:           (index: number) => number,
+    sequenceOpacity: (index: number) => string,   // SVG <animate> element
+    clamp01:         (value: number) => string,
 }
 ```
 
-The function must return a `string` containing valid SVG markup (no `<svg>` wrapper — just the inner content). The wrapper is added by `index.js`.
+The function must return a `string` of valid SVG markup **without** the `<svg>` wrapper. The wrapper is added by `api/index.js`.
 
 ---
 
-Thanks again for contributing — every improvement, no matter how small, makes this project better for everyone. 🙌
+Thanks for contributing — every improvement, no matter how small, makes this project better for everyone. 🙌
