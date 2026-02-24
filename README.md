@@ -25,14 +25,12 @@ The output is a pure SVG file with **no JavaScript on the render side**, ensurin
 
 ## ✨ Features
 
-- **16 built-in animations** — from classic typing to matrix rain
-- **Live preview** in the browser as you configure
-- **No sign-up required** — just open and use
-- **Fully customizable** — color, font, size, duration, letter spacing, and more
-- **One-click copy** — Markdown, HTML, or raw URL
-- **Shareable permalinks** — share your exact settings via URL
-- **Multiline mode** — display all lines simultaneously
-- **Pure SVG output** — works everywhere JS is restricted
+- 20 built-in text animations.
+- New animation picker flow: **Animation is now a button** that opens a selection window.
+- Animations are shown as text-only cards (no emoji), each with a short description.
+- Picker layout supports up to **5 animations per row** on wide screens.
+- Live preview, permalink generation, and one-click copy for Markdown/HTML/URL.
+- Pure SVG output (no JS on render side), works in GitHub README images.
 
 ---
 
@@ -66,26 +64,28 @@ https://readme-svg-typing-generator.vercel.app/api?lines=Hello!;I%20build+cool+t
 
 | Animation | What it does |
 |---|---|
-| `typing` | Character-by-character typing with a blinking cursor |
-| `fade` | Each line smoothly fades in and out |
-| `slide` | Lines slide vertically in sequence |
-| `bounce` | Text bounces with dynamic movement |
-| `pulse` | Rhythmic scale pulse — a breathing effect |
-| `blink` | Hard on/off blinking |
-| `shake` | Quick horizontal shake |
-| `rainbow` | Full-spectrum color cycle |
-| `glitch` | Chromatic split glitch distortion |
-| `stroke` | Draws the text outline then fills it in |
-| `wave` | Characters rise in a rolling wave |
-| `flip` | 3D flip transition on the X axis |
-| `neon` | Neon glow with flickering light |
-| `matrix` | Digital rain inspired by The Matrix |
-| `zoom` | Zoom in and out transition |
-| `blur` | Comes into focus then blurs away |
+| `typing` | Character-by-character typing with cursor. |
+| `fade` | Smooth fade in/out per line. |
+| `slide` | Vertical line transitions. |
+| `bounce` | Bouncing movement effect. |
+| `pulse` | Rhythmic scale pulse. |
+| `blink` | Hard blink on/off. |
+| `shake` | Horizontal shake effect. |
+| `rainbow` | Full-spectrum color cycle. |
+| `glitch` | Chromatic split glitch distortion. |
+| `stroke` | Draws outline then fills text. |
+| `wave` | Character wave motion. |
+| `flip` | 3D flip transition. |
+| `neon` | Neon glow with flicker. |
+| `matrix` | Matrix-like digital rain style. |
+| `zoom` | Zoom in/out transition. |
+| `blur` | Blur in/out transition. |
+| `float` | Gentle vertical floating drift. |
+| `swing` | Pendulum-like text rotation. |
+| `pop` | Quick pop-in overshoot scale. |
+| `skew` | Stylized skew burst and settle. |
 
----
-
-## ⚙️ Parameters
+## Parameters
 
 | Parameter | Default | Description |
 |---|---|---|
