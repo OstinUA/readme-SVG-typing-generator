@@ -34,14 +34,13 @@ module.exports = (ctx) => {
             </rect>
         </clipPath>`;
 
-        const cursorValues = `${tx};${tx};${tx + totalLineWidth};${tx + totalLineWidth};${tx};${tx}`;
+        const cursorValues = `${tx};${tx};${tx + totalLineWidth};${tx + totalLineWidth};${tx + totalLineWidth};${tx + totalLineWidth}`;
 
         body += `<text x="${textX}" y="${lineY(i)}" text-anchor="${textAnchor}" style="${commonStyle}" clip-path="url(#${clipId})" opacity="0">
             ${sequenceOpacity(i)}
             ${line}
         </text>
         <rect x="${tx}" y="${lineY(i) - intSize + 4}" width="2" height="${intSize}" fill="${textColor}" opacity="0">
-            ${sequenceOpacity(i)}
             <animate attributeName="x"
                 values="${cursorValues}"
                 keyTimes="0;${clamp01(t0)};${clamp01(t1)};${clamp01(t2)};${clamp01(t3)};1"
@@ -49,7 +48,7 @@ module.exports = (ctx) => {
                 repeatCount="${repeat ? 'indefinite' : '1'}"
                 fill="freeze" />
             <animate attributeName="opacity"
-                values="0;0;1;1;1;0"
+                values="0;0;1;1;0;0"
                 keyTimes="0;${clamp01(t0)};${clamp01(t1)};${clamp01(t2)};${clamp01(t3)};1"
                 dur="${cycleDurS}s"
                 repeatCount="${repeat ? 'indefinite' : '1'}"
