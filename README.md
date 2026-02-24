@@ -1,8 +1,9 @@
 <div align="center">
 
-[![SVG Animation](https://readme-svg-typing-generator.vercel.app/api?lines=README%20SVG%20Typing%20Generator&animation=rainbow&color=36BCF7&background=00000000&size=26&font=monospace&duration=5000&pause=1000&width=435&height=50&center=true&repeat=true)](https://github.com/OstinUA/readme-SVG-typing-generator)
+[![SVG Animation](https://readme-svg-typing-generator.vercel.app/api?lines=README%20SVG&animation=rainbow&color=36BCF7&background=00000000&size=45&font=monospace&duration=5000&pause=1000&width=435&height=50&letterSpacing=normal&center=true&vCenter=false&multiline=false&repeat=true&random=false)](https://github.com/OstinUA)
 
-# README SVG Typing Generator
+[![SVG Animation](https://readme-svg-typing-generator.vercel.app/api?lines=Typing%20Generator&animation=rainbow&color=36BCF7&background=00000000&size=45&font=monospace&duration=5000&pause=1000&width=435&height=50&letterSpacing=normal&center=true&vCenter=false&multiline=false&repeat=true&random=false)](https://github.com/OstinUA)
+
 
 **Animated SVG banners for GitHub READMEs, repositories, and websites.**
 
