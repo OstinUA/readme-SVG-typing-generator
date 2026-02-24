@@ -56,6 +56,24 @@ const getAnimation = (type, {
         ? `<rect width="${intWidth}" height="${intHeight}" fill="${bgColor}" />`
         : '';
 
+    const clamp01 = (value) => Math.min(1, Math.max(0, value)).toFixed(4);
+    const cycleDurS = ((intDuration + intPause) * Math.max(lines.length, 1)) / 1000;
+    const sequenceOpacity = (index) => {
+        if (multiline) return '';
+        const slotS = (intDuration + intPause) / 1000;
+        const startS = index * slotS;
+        const endS = startS + intDuration / 1000;
+        const fadeS = Math.min(0.12, slotS * 0.08);
+        const inS = startS + fadeS;
+        const outS = Math.max(inS + 0.02, endS - fadeS);
+        return `<animate attributeName="opacity"
+            values="0;0;1;1;0;0"
+            keyTimes="0;${clamp01(startS / cycleDurS)};${clamp01(inS / cycleDurS)};${clamp01(outS / cycleDurS)};${clamp01(endS / cycleDurS)};1"
+            dur="${cycleDurS}s"
+            repeatCount="${repeat ? 'indefinite' : '1'}"
+            fill="freeze" />`;
+    };
+
     switch (type) {
 
         // ─────────────────────────────────────────────
@@ -134,15 +152,12 @@ const getAnimation = (type, {
                 const t3 = (startS + typingS + holdS + eraseS) / cycleDurS;
                 const t4 = 1;
 
-                // Clamp
-                const clamp = v => Math.min(1, Math.max(0, v)).toFixed(4);
-
                 clips += `
                 <clipPath id="${clipId}">
                     <rect x="${tx}" y="0" width="0" height="${intHeight}">
                         <animate attributeName="width"
                             values="0;0;${totalLineWidth};${totalLineWidth};0;0"
-                            keyTimes="${[0, clamp(t0), clamp(t1), clamp(t2), clamp(t3), clamp(t4)].join(';')}"
+                            keyTimes="${[0, clamp01(t0), clamp01(t1), clamp01(t2), clamp01(t3), clamp01(t4)].join(';')}"
                             dur="${cycleDurS}s"
                             repeatCount="${repeat ? 'indefinite' : '1'}"
                             fill="freeze" />
@@ -157,14 +172,19 @@ const getAnimation = (type, {
                     text-anchor="${textAnchor}"
                     style="${commonStyle}"
                     clip-path="url(#${clipId})">${line}</text>
-                <rect x="${tx}" y="${yBase - intSize + 4}" width="2" height="${intSize}" fill="${textColor}">
+                <rect x="${tx}" y="${yBase - intSize + 4}" width="2" height="${intSize}" fill="${textColor}" opacity="0">
                     <animate attributeName="x"
                         values="${cursorValues}"
-                        keyTimes="${[0, clamp(t0), clamp(t1), clamp(t2), clamp(t3), clamp(t4)].join(';')}"
+                        keyTimes="${[0, clamp01(t0), clamp01(t1), clamp01(t2), clamp01(t3), clamp01(t4)].join(';')}"
                         dur="${cycleDurS}s"
                         repeatCount="${repeat ? 'indefinite' : '1'}"
                         fill="freeze" />
-                    <animate attributeName="opacity" values="1;0;1" dur="0.65s" repeatCount="indefinite" />
+                    <animate attributeName="opacity"
+                        values="0;0;1;1;1;0"
+                        keyTimes="${[0, clamp01(t0), clamp01(t1), clamp01(t2), clamp01(t3), clamp01(t4)].join(';')}"
+                        dur="${cycleDurS}s"
+                        repeatCount="${repeat ? 'indefinite' : '1'}"
+                        fill="freeze" />
                 </rect>`;
             });
 
@@ -240,7 +260,8 @@ const getAnimation = (type, {
                 const y = multiline
                     ? (vCenter ? (intHeight - lines.length * lineH) / 2 + intSize + i * lineH : 30 + i * lineH)
                     : yBase;
-                return `<text x="${textX}" y="${y}" text-anchor="${textAnchor}" style="${commonStyle}">
+                return `<text x="${textX}" y="${y}" text-anchor="${textAnchor}" style="${commonStyle}"${multiline ? "" : " opacity=\"0\""}>
+                    ${sequenceOpacity(i)}
                     <animateTransform attributeName="transform" type="translate"
                         values="0,0;0,-${Math.round(intSize * 0.4)};0,0;0,-${Math.round(intSize * 0.2)};0,0"
                         keyTimes="0;0.25;0.5;0.75;1"
@@ -264,7 +285,8 @@ const getAnimation = (type, {
                     ? (vCenter ? (intHeight - lines.length * lineH) / 2 + intSize + i * lineH : 30 + i * lineH)
                     : yBase;
                 return `<text x="${textX}" y="${y}" text-anchor="${textAnchor}" style="${commonStyle}"
-                    transform-origin="${cx} ${y}">
+                    transform-origin="${cx} ${y}"${multiline ? "" : " opacity=\"0\""}>
+                    ${sequenceOpacity(i)}
                     <animateTransform attributeName="transform" type="scale"
                         values="1;1.08;1;0.95;1"
                         keyTimes="0;0.3;0.5;0.75;1"
@@ -286,7 +308,8 @@ const getAnimation = (type, {
                 const y = multiline
                     ? (vCenter ? (intHeight - lines.length * lineH) / 2 + intSize + i * lineH : 30 + i * lineH)
                     : yBase;
-                return `<text x="${textX}" y="${y}" text-anchor="${textAnchor}" style="${commonStyle}">
+                return `<text x="${textX}" y="${y}" text-anchor="${textAnchor}" style="${commonStyle}"${multiline ? "" : " opacity=\"0\""}>
+                    ${sequenceOpacity(i)}
                     <animate attributeName="opacity" values="1;0;1" keyTimes="0;0.5;1"
                         calcMode="discrete"
                         dur="${intDuration / 1000}s" repeatCount="${repeat ? 'indefinite' : '1'}"
@@ -306,7 +329,8 @@ const getAnimation = (type, {
                 const y = multiline
                     ? (vCenter ? (intHeight - lines.length * lineH) / 2 + intSize + i * lineH : 30 + i * lineH)
                     : yBase;
-                return `<text x="${textX}" y="${y}" text-anchor="${textAnchor}" style="${commonStyle}">
+                return `<text x="${textX}" y="${y}" text-anchor="${textAnchor}" style="${commonStyle}"${multiline ? "" : " opacity=\"0\""}>
+                    ${sequenceOpacity(i)}
                     <animateTransform attributeName="transform" type="translate"
                         values="0,0;-2,1;2,-1;-3,2;3,-2;-2,1;2,-1;0,0"
                         dur="0.4s" repeatCount="indefinite" begin="${i * 0.05}s" />
@@ -327,7 +351,8 @@ const getAnimation = (type, {
                     ? (vCenter ? (intHeight - lines.length * lineH) / 2 + intSize + i * lineH : 30 + i * lineH)
                     : yBase;
                 const shift = i * (durS / lines.length);
-                return `<text x="${textX}" y="${y}" text-anchor="${textAnchor}" style="${commonStyle}">
+                return `<text x="${textX}" y="${y}" text-anchor="${textAnchor}" style="${commonStyle}"${multiline ? "" : " opacity=\"0\""}>
+                    ${sequenceOpacity(i)}
                     <animate attributeName="fill"
                         values="${textColor};#ff0040;#ff8c00;#ffef00;#00dd44;#0088ff;#7700ff;${textColor}"
                         dur="${durS}s" repeatCount="${repeat ? 'indefinite' : '1'}"
@@ -348,7 +373,8 @@ const getAnimation = (type, {
                 const y = multiline
                     ? (vCenter ? (intHeight - lines.length * lineH) / 2 + intSize + i * lineH : 30 + i * lineH)
                     : yBase;
-                return `<g>
+                return `<g${multiline ? "" : " opacity=\"0\""}>
+                    ${sequenceOpacity(i)}
                     <text x="${textX}" y="${y}" text-anchor="${textAnchor}" style="${commonStyle}" fill="red" opacity="0.4">
                         <animateTransform attributeName="transform" type="translate"
                             values="2,0;-2,0;2,1;-2,-1;0,0" dur="${durS * 0.3}s" repeatCount="indefinite" />
@@ -383,7 +409,8 @@ const getAnimation = (type, {
                 const beginS = multiline ? i * (durS + intPause / 1000) : 0;
                 return `<text x="${textX}" y="${y}" text-anchor="${textAnchor}" style="${commonStyle}"
                     fill="none" stroke="${textColor}" stroke-width="1.5"
-                    stroke-dasharray="${dashLen}" stroke-dashoffset="${dashLen}">
+                    stroke-dasharray="${dashLen}" stroke-dashoffset="${dashLen}"${multiline ? '' : ' opacity="0"'}>
+                    ${sequenceOpacity(i)}
                     <animate attributeName="stroke-dashoffset"
                         values="${dashLen};0" dur="${durS}s" begin="${beginS}s"
                         fill="freeze" repeatCount="${repeat ? 'indefinite' : '1'}" />
@@ -401,23 +428,38 @@ const getAnimation = (type, {
         // ─────────────────────────────────────────────
         case 'wave': {
             const durS = intDuration / 1000;
-            const line = lines[0];
-            const chars = line.split('');
-            const charWidth = intSize * 0.62;
-            const totalW = chars.length * charWidth;
-            const startX = center ? (intWidth - totalW) / 2 : 20;
+            const lineH = intSize * 1.6;
+            const totalH = lines.length * lineH;
+            const startY = vCenter ? (intHeight - totalH) / 2 + intSize : 30;
+            const rowDuration = (intDuration + intPause) / 1000;
 
-            const charEls = chars.map((ch, i) => {
-                const x = startX + i * charWidth;
-                const delay = (i / chars.length) * durS * 0.5;
-                return `<text x="${x}" y="${yBase}" style="${commonStyle}">
+            const charEls = lines.map((line, rowIndex) => {
+                const chars = line.split('');
+                const charWidth = intSize * 0.62;
+                const totalW = chars.length * charWidth;
+                const startX = center ? (intWidth - totalW) / 2 : 20;
+                const rowY = multiline ? (startY + rowIndex * lineH) : yBase;
+                const rowBegin = multiline ? 0 : (rowIndex * rowDuration);
+
+                return chars.map((ch, i) => {
+                    const x = startX + i * charWidth;
+                    const delay = rowBegin + (i / Math.max(chars.length, 1)) * durS * 0.5;
+                    const rowOpacity = multiline
+                        ? ''
+                        : `<animate attributeName="opacity" values="0;0;1;1;0;0"
+                            keyTimes="0;${clamp01(rowBegin / (rowDuration * lines.length))};${clamp01((rowBegin + 0.1) / (rowDuration * lines.length))};${clamp01((rowBegin + rowDuration * 0.8) / (rowDuration * lines.length))};${clamp01((rowBegin + rowDuration) / (rowDuration * lines.length))};1"
+                            dur="${(rowDuration * lines.length).toFixed(3)}s"
+                            repeatCount="${repeat ? 'indefinite' : '1'}" />`;
+                    return `<text x="${x}" y="${rowY}" style="${commonStyle}"${multiline ? '' : ' opacity="0"'}>
+                    ${rowOpacity}
                     <animateTransform attributeName="transform" type="translate"
                         values="0,0;0,-${intSize * 0.4};0,0"
                         dur="${durS * 0.5}s"
                         begin="${delay}s"
-                        repeatCount="indefinite" />
+                        repeatCount="${repeat ? 'indefinite' : '1'}" />
                     ${ch}
                 </text>`;
+                }).join('');
             }).join('');
             return `${bgRect}${charEls}`;
         }
@@ -426,17 +468,17 @@ const getAnimation = (type, {
         //  FLIP / ROTATE (NEW)
         // ─────────────────────────────────────────────
         case 'flip': {
-            const durS = intDuration / 1000;
             const cycleDurS = (intDuration + intPause) * lines.length / 1000;
             const items = lines.map((line, i) => {
                 const beginS = i * (intDuration + intPause) / 1000;
-                return `<text x="${textX}" y="${yBase}" text-anchor="${textAnchor}" style="${commonStyle}" opacity="0">
-                    <animate attributeName="opacity" values="0;1;1;0"
-                        keyTimes="0;0.1;0.8;1"
-                        dur="${cycleDurS}s" begin="${beginS}s"
-                        repeatCount="${repeat ? 'indefinite' : '1'}" fill="freeze" />
+                const lineH = intSize * 1.6;
+                const y = multiline
+                    ? (vCenter ? (intHeight - lines.length * lineH) / 2 + intSize + i * lineH : 30 + i * lineH)
+                    : yBase;
+                return `<text x="${textX}" y="${y}" text-anchor="${textAnchor}" style="${commonStyle}" opacity="0">
+                    ${sequenceOpacity(i)}
                     <animateTransform attributeName="transform" type="rotate"
-                        values="90 ${intWidth / 2} ${yBase};0 ${intWidth / 2} ${yBase};0 ${intWidth / 2} ${yBase};-90 ${intWidth / 2} ${yBase}"
+                        values="90 ${intWidth / 2} ${y};0 ${intWidth / 2} ${y};0 ${intWidth / 2} ${y};-90 ${intWidth / 2} ${y}"
                         keyTimes="0;0.1;0.8;1"
                         dur="${cycleDurS}s" begin="${beginS}s"
                         repeatCount="${repeat ? 'indefinite' : '1'}" fill="freeze" />
@@ -457,12 +499,15 @@ const getAnimation = (type, {
                 const y = multiline
                     ? (vCenter ? (intHeight - lines.length * lineH) / 2 + intSize + i * lineH : 30 + i * lineH)
                     : yBase;
-                return `<text x="${textX}" y="${y}" text-anchor="${textAnchor}" style="${commonStyle}"
+                return `<g${multiline ? '' : ' opacity="0"'}>
+                    ${sequenceOpacity(i)}
+                    <text x="${textX}" y="${y}" text-anchor="${textAnchor}" style="${commonStyle}"
                     filter="url(#${filterId})" opacity="0.9">
                     <animate attributeName="opacity" values="0.5;1;0.5;0.8;1;0.5"
                         dur="${durS}s" repeatCount="indefinite" begin="${i * 0.3}s" />
                     ${line}
-                </text>`;
+                    </text>
+                </g>`;
             }).join('');
             return `
             ${bgRect}
@@ -480,7 +525,7 @@ const getAnimation = (type, {
         // ─────────────────────────────────────────────
         case 'matrix': {
             const durS = intDuration / 1000;
-            const line = lines[0];
+            const line = lines.join(' ');
             const cols = Math.floor(intWidth / (intSize * 0.6));
             let drops = '';
             for (let c = 0; c < Math.min(cols, 30); c++) {
@@ -512,12 +557,10 @@ const getAnimation = (type, {
                 const y = multiline
                     ? (vCenter ? (intHeight - lines.length * lineH) / 2 + intSize + i * lineH : 30 + i * lineH)
                     : yBase;
-                const phaseShift = (i / lines.length) * durS;
+                const phaseShift = multiline ? (i / lines.length) * durS : 0;
                 return `<text x="${textX}" y="${y}" text-anchor="${textAnchor}" style="${commonStyle}"
                     transform-origin="${cx} ${y}" opacity="0">
-                    <animate attributeName="opacity" values="0;1;1;0"
-                        keyTimes="0;0.2;0.7;1"
-                        dur="${durS}s" begin="${phaseShift}s" repeatCount="${repeat ? 'indefinite' : '1'}" />
+                    ${sequenceOpacity(i)}
                     <animateTransform attributeName="transform" type="scale"
                         values="0.1;1;1;2"
                         keyTimes="0;0.2;0.7;1"
@@ -540,13 +583,10 @@ const getAnimation = (type, {
                 const y = multiline
                     ? (vCenter ? (intHeight - lines.length * lineH) / 2 + intSize + i * lineH : 30 + i * lineH)
                     : yBase;
-                const phaseShift = (i / lines.length) * durS;
-                const animId = `blur_anim_${i}_${Math.random().toString(36).slice(2, 5)}`;
+                const phaseShift = multiline ? (i / lines.length) * durS : 0;
                 return `<text x="${textX}" y="${y}" text-anchor="${textAnchor}" style="${commonStyle}"
                     filter="url(#${filterId}${i})" opacity="0">
-                    <animate attributeName="opacity" values="0;1;1;0"
-                        keyTimes="0;0.25;0.75;1"
-                        dur="${durS}s" begin="${phaseShift}s" repeatCount="${repeat ? 'indefinite' : '1'}" />
+                    ${sequenceOpacity(i)}
                     ${line}
                 </text>
                 <defs>
