@@ -258,30 +258,124 @@
             pointer-events: none;
         }
 
-        /* Anim chips */
+        /* Animation picker */
+        .anim-trigger {
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--border2);
+            color: var(--text);
+            padding: 11px 14px;
+            border-radius: 9px;
+            text-align: left;
+            font-size: 13px;
+            cursor: pointer;
+            font-family: var(--sans);
+            transition: border-color 0.2s, transform 0.1s;
+        }
+
+        .anim-trigger:hover {
+            border-color: var(--accent);
+        }
+
+        .anim-trigger strong { color: var(--accent2); }
+
+        .anim-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(5, 7, 14, 0.75);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 110;
+            padding: 24px;
+        }
+
+        .anim-modal.open { display: flex; }
+
+        .anim-modal-content {
+            width: min(1040px, 100%);
+            max-height: 85vh;
+            overflow: auto;
+            background: var(--card);
+            border: 1px solid var(--border2);
+            border-radius: 14px;
+            padding: 18px;
+        }
+
+        .anim-modal-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 14px;
+        }
+
+        .anim-modal-head h3 {
+            font-size: 16px;
+            margin-bottom: 3px;
+        }
+
+        .anim-modal-head p {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .anim-close {
+            background: var(--surface);
+            border: 1px solid var(--border2);
+            color: var(--muted);
+            border-radius: 7px;
+            cursor: pointer;
+            padding: 6px 10px;
+            font-size: 12px;
+            font-family: var(--sans);
+        }
+
         .anim-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 7px;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        @media (max-width: 940px) {
+            .anim-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
+
+        @media (max-width: 640px) {
+            .anim-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         }
 
         .anim-chip {
             background: var(--surface);
             border: 1px solid var(--border2);
-            border-radius: 8px;
-            padding: 8px 4px;
-            text-align: center;
-            font-size: 12px;
+            border-radius: 9px;
+            padding: 10px;
+            text-align: left;
             cursor: pointer;
             transition: all 0.2s;
             color: var(--muted);
         }
-        .anim-chip .chip-icon { font-size: 16px; display: block; margin-bottom: 3px; }
-        .anim-chip:hover { border-color: var(--accent); color: var(--text); }
+
+        .anim-chip-title {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .anim-chip-desc {
+            display: block;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .anim-chip:hover { border-color: var(--accent); }
+
         .anim-chip.active {
             background: linear-gradient(135deg, rgba(108,116,255,0.25), rgba(0,212,255,0.12));
             border-color: var(--accent);
-            color: var(--accent2);
+            color: var(--text);
         }
 
         /* ── RIGHT COLUMN ───────────────────────────── */
@@ -533,7 +627,7 @@ Welcome to my profile</textarea>
         <div class="card" style="margin-bottom:20px">
             <div class="card-header">Animation</div>
             <div class="card-body">
-                <div class="anim-grid" id="animGrid"></div>
+                <button type="button" class="anim-trigger" id="animPickerBtn" onclick="openAnimModal()">Select animation: <strong id="selectedAnimLabel">Typing</strong></button>
             </div>
         </div>
 
@@ -765,6 +859,19 @@ Welcome to my profile</textarea>
     </div>
 </main>
 
+<div class="anim-modal" id="animModal" onclick="onAnimModalBackdrop(event)">
+    <div class="anim-modal-content" role="dialog" aria-modal="true" aria-labelledby="animModalTitle">
+        <div class="anim-modal-head">
+            <div>
+                <h3 id="animModalTitle">Choose animation</h3>
+                <p>Select one style for your SVG text.</p>
+            </div>
+            <button type="button" class="anim-close" onclick="closeAnimModal()">Close</button>
+        </div>
+        <div class="anim-grid" id="animGrid"></div>
+    </div>
+</div>
+
 <footer>
     Made with ❤️ for GitHub profiles &bull; <a href="https://github.com/OstinUA" target="_blank">OstinUA</a>
     &bull; Repositories <a href="https://github.com/OstinUA/readme-SVG-typing-generator" target="_blank">Readme SVG typing-generator</a>
@@ -775,22 +882,22 @@ Welcome to my profile</textarea>
 //  CONFIG
 // ═══════════════════════════════════════════════════
 const ANIMATIONS = [
-    { id: 'typing',  icon: '⌨️',  label: 'Typing' },
-    { id: 'fade',    icon: '🌅',  label: 'Fade' },
-    { id: 'slide',   icon: '⬆️',  label: 'Slide' },
-    { id: 'bounce',  icon: '⚡',  label: 'Bounce' },
-    { id: 'pulse',   icon: '💗',  label: 'Pulse' },
-    { id: 'blink',   icon: '💡',  label: 'Blink' },
-    { id: 'shake',   icon: '🌊',  label: 'Shake' },
-    { id: 'rainbow', icon: '🌈',  label: 'Rainbow' },
-    { id: 'glitch',  icon: '📺',  label: 'Glitch' },
-    { id: 'stroke',  icon: '✍️',  label: 'Stroke' },
-    { id: 'wave',    icon: '〰️',  label: 'Wave' },
-    { id: 'flip',    icon: '🔄',  label: 'Flip' },
-    { id: 'neon',    icon: '💜',  label: 'Neon' },
-    { id: 'matrix',  icon: '🟩',  label: 'Matrix' },
-    { id: 'zoom',    icon: '🔭',  label: 'Zoom' },
-    { id: 'blur',    icon: '🌫️',  label: 'Blur' },
+    { id: 'typing', label: 'Typing', description: 'Character-by-character typing with cursor.' },
+    { id: 'fade', label: 'Fade', description: 'Each line fades in and out softly.' },
+    { id: 'slide', label: 'Slide', description: 'Lines slide vertically in sequence.' },
+    { id: 'bounce', label: 'Bounce', description: 'Text bounces with dynamic motion.' },
+    { id: 'pulse', label: 'Pulse', description: 'Breathing pulse by scaling text.' },
+    { id: 'blink', label: 'Blink', description: 'Hard on/off blinking effect.' },
+    { id: 'shake', label: 'Shake', description: 'Quick horizontal shake movement.' },
+    { id: 'rainbow', label: 'Rainbow', description: 'Continuous full-spectrum hue cycle.' },
+    { id: 'glitch', label: 'Glitch', description: 'Chromatic split glitch distortion.' },
+    { id: 'stroke', label: 'Stroke', description: 'Draws text outline then fills it.' },
+    { id: 'wave', label: 'Wave', description: 'Characters move in a wave rhythm.' },
+    { id: 'flip', label: 'Flip', description: 'Text flips in 3D on the X-axis.' },
+    { id: 'neon', label: 'Neon', description: 'Neon glow with flickering light.' },
+    { id: 'matrix', label: 'Matrix', description: 'Digital rain inspired character effect.' },
+    { id: 'zoom', label: 'Zoom', description: 'Zoom in and out transition motion.' },
+    { id: 'blur', label: 'Blur', description: 'Comes into focus then blurs away.' },
 ];
 
 let selectedAnim = 'typing';
@@ -800,21 +907,8 @@ let updateTimer = null;
 //  INIT
 // ═══════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', () => {
-    // Build anim grid
-    const grid = document.getElementById('animGrid');
-    ANIMATIONS.forEach(a => {
-        const chip = document.createElement('div');
-        chip.className = 'anim-chip' + (a.id === selectedAnim ? ' active' : '');
-        chip.dataset.anim = a.id;
-        chip.innerHTML = `<span class="chip-icon">${a.icon}</span>${a.label}`;
-        chip.onclick = () => {
-            document.querySelectorAll('.anim-chip').forEach(c => c.classList.remove('active'));
-            chip.classList.add('active');
-            selectedAnim = a.id;
-            scheduleUpdate();
-        };
-        grid.appendChild(chip);
-    });
+    renderAnimationGrid();
+    refreshSelectedAnimationLabel();
 
     // Toggle groups
     document.querySelectorAll('.toggle-group').forEach(group => {
@@ -829,9 +923,58 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // Load from URL params if any
     loadFromURL();
+    highlightSelectedAnimation();
+    refreshSelectedAnimationLabel();
 
     update();
 });
+
+
+function renderAnimationGrid() {
+    const grid = document.getElementById('animGrid');
+    grid.innerHTML = '';
+
+    ANIMATIONS.forEach(a => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'anim-chip' + (a.id === selectedAnim ? ' active' : '');
+        chip.dataset.anim = a.id;
+        chip.innerHTML = `<span class="anim-chip-title">${a.label}</span><span class="anim-chip-desc">${a.description}</span>`;
+        chip.onclick = () => {
+            selectedAnim = a.id;
+            highlightSelectedAnimation();
+            refreshSelectedAnimationLabel();
+            closeAnimModal();
+            scheduleUpdate();
+        };
+        grid.appendChild(chip);
+    });
+}
+
+function highlightSelectedAnimation() {
+    document.querySelectorAll('.anim-chip').forEach(c => {
+        c.classList.toggle('active', c.dataset.anim === selectedAnim);
+    });
+}
+
+function refreshSelectedAnimationLabel() {
+    const current = ANIMATIONS.find(a => a.id === selectedAnim);
+    document.getElementById('selectedAnimLabel').textContent = current ? current.label : selectedAnim;
+}
+
+function openAnimModal() {
+    document.getElementById('animModal').classList.add('open');
+}
+
+function closeAnimModal() {
+    document.getElementById('animModal').classList.remove('open');
+}
+
+function onAnimModalBackdrop(event) {
+    if (event.target.id === 'animModal') {
+        closeAnimModal();
+    }
+}
 
 // ═══════════════════════════════════════════════════
 //  COLOR SYNC
@@ -995,10 +1138,12 @@ function loadFromURL() {
     document.getElementById('linesInput').value = lines;
 
     if (p.has('animation')) {
-        selectedAnim = p.get('animation');
-        document.querySelectorAll('.anim-chip').forEach(c => {
-            c.classList.toggle('active', c.dataset.anim === selectedAnim);
-        });
+        const requestedAnim = p.get('animation');
+        if (ANIMATIONS.some(a => a.id === requestedAnim)) {
+            selectedAnim = requestedAnim;
+            highlightSelectedAnimation();
+            refreshSelectedAnimationLabel();
+        }
     }
     if (p.has('color')) {
         const h = p.get('color');
