@@ -56,6 +56,8 @@ const getAnimation = (type, {
         ? `<rect width="${intWidth}" height="${intHeight}" fill="${bgColor}" />`
         : '';
 
+    const clamp01 = (value) => Math.min(1, Math.max(0, value)).toFixed(4);
+
     switch (type) {
 
         // ─────────────────────────────────────────────
@@ -134,15 +136,12 @@ const getAnimation = (type, {
                 const t3 = (startS + typingS + holdS + eraseS) / cycleDurS;
                 const t4 = 1;
 
-                // Clamp
-                const clamp = v => Math.min(1, Math.max(0, v)).toFixed(4);
-
                 clips += `
                 <clipPath id="${clipId}">
                     <rect x="${tx}" y="0" width="0" height="${intHeight}">
                         <animate attributeName="width"
                             values="0;0;${totalLineWidth};${totalLineWidth};0;0"
-                            keyTimes="${[0, clamp(t0), clamp(t1), clamp(t2), clamp(t3), clamp(t4)].join(';')}"
+                            keyTimes="${[0, clamp01(t0), clamp01(t1), clamp01(t2), clamp01(t3), clamp01(t4)].join(';')}"
                             dur="${cycleDurS}s"
                             repeatCount="${repeat ? 'indefinite' : '1'}"
                             fill="freeze" />
@@ -160,11 +159,16 @@ const getAnimation = (type, {
                 <rect x="${tx}" y="${yBase - intSize + 4}" width="2" height="${intSize}" fill="${textColor}">
                     <animate attributeName="x"
                         values="${cursorValues}"
-                        keyTimes="${[0, clamp(t0), clamp(t1), clamp(t2), clamp(t3), clamp(t4)].join(';')}"
+                        keyTimes="${[0, clamp01(t0), clamp01(t1), clamp01(t2), clamp01(t3), clamp01(t4)].join(';')}"
                         dur="${cycleDurS}s"
                         repeatCount="${repeat ? 'indefinite' : '1'}"
                         fill="freeze" />
-                    <animate attributeName="opacity" values="1;0;1" dur="0.65s" repeatCount="indefinite" />
+                    <animate attributeName="opacity"
+                        values="0;0;1;1;1;0"
+                        keyTimes="${[0, clamp01(t0), clamp01(t1), clamp01(t2), clamp01(t3), clamp01(t4)].join(';')}"
+                        dur="${cycleDurS}s"
+                        repeatCount="${repeat ? 'indefinite' : '1'}"
+                        fill="freeze" />
                 </rect>`;
             });
 
@@ -401,23 +405,38 @@ const getAnimation = (type, {
         // ─────────────────────────────────────────────
         case 'wave': {
             const durS = intDuration / 1000;
-            const line = lines[0];
-            const chars = line.split('');
-            const charWidth = intSize * 0.62;
-            const totalW = chars.length * charWidth;
-            const startX = center ? (intWidth - totalW) / 2 : 20;
+            const lineH = intSize * 1.6;
+            const totalH = lines.length * lineH;
+            const startY = vCenter ? (intHeight - totalH) / 2 + intSize : 30;
+            const rowDuration = (intDuration + intPause) / 1000;
 
-            const charEls = chars.map((ch, i) => {
-                const x = startX + i * charWidth;
-                const delay = (i / chars.length) * durS * 0.5;
-                return `<text x="${x}" y="${yBase}" style="${commonStyle}">
+            const charEls = lines.map((line, rowIndex) => {
+                const chars = line.split('');
+                const charWidth = intSize * 0.62;
+                const totalW = chars.length * charWidth;
+                const startX = center ? (intWidth - totalW) / 2 : 20;
+                const rowY = multiline ? (startY + rowIndex * lineH) : yBase;
+                const rowBegin = multiline ? 0 : (rowIndex * rowDuration);
+
+                return chars.map((ch, i) => {
+                    const x = startX + i * charWidth;
+                    const delay = rowBegin + (i / Math.max(chars.length, 1)) * durS * 0.5;
+                    const rowOpacity = multiline
+                        ? ''
+                        : `<animate attributeName="opacity" values="0;0;1;1;0;0"
+                            keyTimes="0;${clamp01(rowBegin / (rowDuration * lines.length))};${clamp01((rowBegin + 0.1) / (rowDuration * lines.length))};${clamp01((rowBegin + rowDuration * 0.8) / (rowDuration * lines.length))};${clamp01((rowBegin + rowDuration) / (rowDuration * lines.length))};1"
+                            dur="${(rowDuration * lines.length).toFixed(3)}s"
+                            repeatCount="${repeat ? 'indefinite' : '1'}" />`;
+                    return `<text x="${x}" y="${rowY}" style="${commonStyle}"${multiline ? '' : ' opacity="0"'}>
+                    ${rowOpacity}
                     <animateTransform attributeName="transform" type="translate"
                         values="0,0;0,-${intSize * 0.4};0,0"
                         dur="${durS * 0.5}s"
                         begin="${delay}s"
-                        repeatCount="indefinite" />
+                        repeatCount="${repeat ? 'indefinite' : '1'}" />
                     ${ch}
                 </text>`;
+                }).join('');
             }).join('');
             return `${bgRect}${charEls}`;
         }
@@ -480,7 +499,7 @@ const getAnimation = (type, {
         // ─────────────────────────────────────────────
         case 'matrix': {
             const durS = intDuration / 1000;
-            const line = lines[0];
+            const line = lines.join(' ');
             const cols = Math.floor(intWidth / (intSize * 0.6));
             let drops = '';
             for (let c = 0; c < Math.min(cols, 30); c++) {
