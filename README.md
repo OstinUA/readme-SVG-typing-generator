@@ -12,7 +12,7 @@ Create animated SVG banners for GitHub README files, repositories, and websites.
 
 ## Features
 
-- 16 built-in text animations.
+- 20 built-in text animations.
 - New animation picker flow: **Animation is now a button** that opens a selection window.
 - Animations are shown as text-only cards (no emoji), each with a short description.
 - Picker layout supports up to **5 animations per row** on wide screens.
@@ -50,6 +50,10 @@ Create animated SVG banners for GitHub README files, repositories, and websites.
 | `matrix` | Matrix-like digital rain style. |
 | `zoom` | Zoom in/out transition. |
 | `blur` | Blur in/out transition. |
+| `float` | Gentle vertical floating drift. |
+| `swing` | Pendulum-like text rotation. |
+| `pop` | Quick pop-in overshoot scale. |
+| `skew` | Stylized skew burst and settle. |
 
 ## Parameters
 

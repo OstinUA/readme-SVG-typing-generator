@@ -60,7 +60,7 @@ module.exports = (req, res) => {
     const validAnimations = [
         'typing','fade','slide','bounce','pulse','blink',
         'shake','rainbow','glitch','stroke','wave','flip',
-        'neon','matrix','zoom','blur',
+        'neon','matrix','zoom','blur','float','swing','pop','skew',
     ];
     const animType = validAnimations.includes(animation) ? animation : 'typing';
 

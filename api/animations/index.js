@@ -15,4 +15,8 @@ module.exports = {
     matrix: require('./matrix'),
     zoom: require('./zoom'),
     blur: require('./blur'),
+    float: require('./float'),
+    swing: require('./swing'),
+    pop: require('./pop'),
+    skew: require('./skew'),
 };
