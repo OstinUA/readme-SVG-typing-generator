@@ -1,0 +1,18 @@
+module.exports = {
+    typing: require('./typing'),
+    fade: require('./fade'),
+    slide: require('./slide'),
+    bounce: require('./bounce'),
+    pulse: require('./pulse'),
+    blink: require('./blink'),
+    shake: require('./shake'),
+    rainbow: require('./rainbow'),
+    glitch: require('./glitch'),
+    stroke: require('./stroke'),
+    wave: require('./wave'),
+    flip: require('./flip'),
+    neon: require('./neon'),
+    matrix: require('./matrix'),
+    zoom: require('./zoom'),
+    blur: require('./blur'),
+};
