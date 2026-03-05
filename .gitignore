@@ -8,6 +8,8 @@ node_modules/
 .env
 .env.*
 !.env.example
+venv/
+env/
 
 # Logs
 logs/
@@ -21,27 +23,13 @@ pnpm-debug.log*
 dist/
 build/
 coverage/
-
-# OS and editor files
-.DS_Store
-Thumbs.db
-.vscode/
-.idea/
-*.swp
-
-.env
-venv/
-env/
 __pycache__/
 *.py[cod]
 *$py.class
 .pytest_cache/
 .coverage
 htmlcov/
-.DS_Store
-build/
 develop-eggs/
-dist/
 downloads/
 eggs/
 .eggs/
@@ -54,5 +42,10 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+
+# OS and editor files
+.DS_Store
+Thumbs.db
 .vscode/
 .idea/
+*.swp
